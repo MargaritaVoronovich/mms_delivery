@@ -18,4 +18,8 @@ public class Delivery implements Serializable {
 
     @Column(columnDefinition = "bigint")
     private Long orderId;
+
+    public Delivery(Long orderId) {
+        this.orderId = orderId;
+    }
 }
