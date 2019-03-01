@@ -21,7 +21,7 @@ public class QueueConsumer {
     @Autowired
     private DeliveryRepository deliveryRepository;
 
-    @RabbitListener(queues = {"order_created"})
+    @RabbitListener(queues = {"delivery_queue"})
     public void receiveMessage(String message) throws IOException, InterruptedException {
         logger.info("Received (String) " + message);
 
