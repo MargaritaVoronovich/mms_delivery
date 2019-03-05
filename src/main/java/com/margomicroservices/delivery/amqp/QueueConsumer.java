@@ -1,6 +1,7 @@
 package com.margomicroservices.delivery.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.margomicroservices.delivery.amqp.event.OrderDeliveredEvent;
 import com.margomicroservices.delivery.model.Delivery;
 import com.margomicroservices.delivery.repository.DeliveryRepository;
 import org.slf4j.Logger;
@@ -15,25 +16,30 @@ import java.io.IOException;
 public class QueueConsumer {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    private final DeliveryRepository deliveryRepository;
+
+    private final QueueProducer queueProducer;
 
     @Autowired
-    private DeliveryRepository deliveryRepository;
+    public QueueConsumer(ObjectMapper objectMapper, DeliveryRepository deliveryRepository, QueueProducer queueProducer) {
+        this.objectMapper = objectMapper;
+        this.deliveryRepository = deliveryRepository;
+        this.queueProducer = queueProducer;
+    }
 
     @RabbitListener(queues = {"delivery_queue"})
     public void receiveMessage(String message) throws IOException, InterruptedException {
         logger.info("Received (String) " + message);
 
-        //TODO: refactor
-        Long orderId = objectMapper.readTree(message).path("order").path("id").longValue();
-
+        Long orderId = objectMapper.readTree(message).path("orderId").longValue();
         Delivery delivery = new Delivery(orderId);
+
         deliveryRepository.save(delivery);
 
         Thread.sleep(3000);
 
-        //TODO: send new event to history
-        logger.info("Sending delivery event to history..");
+        queueProducer.produce(new OrderDeliveredEvent(orderId, objectMapper).toJsonString());
     }
 }

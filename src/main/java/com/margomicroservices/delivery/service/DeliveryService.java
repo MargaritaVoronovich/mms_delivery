@@ -10,8 +10,12 @@ import java.util.Optional;
 
 @Service
 public class DeliveryService {
+    private final DeliveryRepository deliveryRepository;
+
     @Autowired
-    private DeliveryRepository deliveryRepository;
+    public DeliveryService(DeliveryRepository deliveryRepository) {
+        this.deliveryRepository = deliveryRepository;
+    }
 
     public List<Delivery> getAll() {
         return deliveryRepository.findAll();

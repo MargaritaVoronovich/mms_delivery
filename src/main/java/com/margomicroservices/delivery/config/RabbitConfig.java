@@ -11,17 +11,24 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
+    public static final String HISTORY_QUEUE = "history_queue";
+
     private static final String LISTENER_METHOD = "receiveMessage";
-    @Value("${queue.name}")
-    private String queueName;
+    private static final String DELIVERY_QUEUE = "delivery_queue";
+
     @Value("${topic.exchange}")
     private String topicExchange;
     @Value("${routing.key}")
     private String routingKey;
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, true);
+    Queue historyQueue() {
+        return new Queue(HISTORY_QUEUE, true);
+    }
+
+    @Bean
+    Queue deliveryQueue() {
+        return new Queue(DELIVERY_QUEUE, true);
     }
 
     @Bean
@@ -30,8 +37,13 @@ public class RabbitConfig {
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    Binding historyBinding(TopicExchange exchange) {
+        return BindingBuilder.bind(historyQueue()).to(exchange).with(routingKey);
+    }
+
+    @Bean
+    Binding deliveryBinding(TopicExchange exchange) {
+        return BindingBuilder.bind(deliveryQueue()).to(exchange).with(routingKey);
     }
 
     @Bean
@@ -39,7 +51,7 @@ public class RabbitConfig {
                                              MessageListenerAdapter listenerAdapter) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(queueName);
+        container.setQueueNames(DELIVERY_QUEUE);
         container.setMessageListener(listenerAdapter);
 
         return container;
