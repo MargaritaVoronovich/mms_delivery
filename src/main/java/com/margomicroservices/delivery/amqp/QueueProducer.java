@@ -13,11 +13,6 @@ import org.springframework.stereotype.Component;
 public class QueueProducer {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Value("${topic.exchange}")
-    private String topicExchange;
-    @Value("${routing.key}")
-    private String routingKey;
-
     private final RabbitTemplate rabbitTemplate;
 
     @Autowired
@@ -26,7 +21,7 @@ public class QueueProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void produce(String message) {
+    void produce(String message) {
         logger.info("Storing notification...");
 
         rabbitTemplate.convertAndSend(RabbitConfig.HISTORY_QUEUE, message);

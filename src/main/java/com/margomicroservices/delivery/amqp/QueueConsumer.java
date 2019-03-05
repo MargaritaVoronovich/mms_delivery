@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margomicroservices.delivery.amqp.event.OrderDeliveredEvent;
 import com.margomicroservices.delivery.model.Delivery;
 import com.margomicroservices.delivery.repository.DeliveryRepository;
+import com.margomicroservices.delivery.service.JsonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,11 +23,17 @@ public class QueueConsumer {
 
     private final QueueProducer queueProducer;
 
+    private JsonService jsonService;
+
     @Autowired
-    public QueueConsumer(ObjectMapper objectMapper, DeliveryRepository deliveryRepository, QueueProducer queueProducer) {
+    public QueueConsumer(ObjectMapper objectMapper,
+                         DeliveryRepository deliveryRepository,
+                         QueueProducer queueProducer,
+                         JsonService jsonService) {
         this.objectMapper = objectMapper;
         this.deliveryRepository = deliveryRepository;
         this.queueProducer = queueProducer;
+        this.jsonService = jsonService;
     }
 
     @RabbitListener(queues = {"delivery_queue"})
@@ -40,6 +47,6 @@ public class QueueConsumer {
 
         Thread.sleep(3000);
 
-        queueProducer.produce(new OrderDeliveredEvent(orderId, objectMapper).toJsonString());
+        queueProducer.produce(jsonService.toJsonString(new OrderDeliveredEvent(orderId)));
     }
 }
