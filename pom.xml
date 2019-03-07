@@ -91,7 +91,7 @@
 					<user>postgres</user>
 					<password>postgres</password>
 					<locations>
-						<location>classpath:db/db.migration</location>
+						<location>filesystem:db/db.migration</location>
 					</locations>
 				</configuration>
 			</plugin>
