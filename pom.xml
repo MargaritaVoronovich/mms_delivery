@@ -87,7 +87,7 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>5.2.4</version>
 				<configuration>
-					<url>jdbc:postgresql://localhost:5432/mms_order</url>
+					<url>jdbc:postgresql://localhost:5433/mms_order</url>
 					<user>postgres</user>
 					<password>postgres</password>
 					<locations>
